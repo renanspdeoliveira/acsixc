@@ -5,7 +5,7 @@ import DashboardPage from "./pages/DashboardPage";
 function App() {
   return (
     <Router>
-      <div className="relative min-h-screen w-full bg-gradient-to-br from-[#0a0e2c] to-[#12174A] text-white overflow-hidden">
+      <div className="relative min-h-screen w-full bg-gradient-to-br from-[#0a0e2c] to-[#12174A] text-white overflow-hidden bg-[size:200%_200%] animate-gradient-move">
         {/* Radial gradient overlay */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-500/10 via-transparent to-transparent"></div>
         
