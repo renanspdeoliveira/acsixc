@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,7 +20,6 @@ import {
 } from "@/components/ui/select";
 import { Search, Star, Filter, Eye, Settings, ChevronLeft, ChevronRight } from "lucide-react";
 
-// Definindo o tipo para os dispositivos
 type Device = {
   id: string;
   status: boolean;
@@ -71,7 +71,7 @@ const DashboardPage = () => {
 
     const searchTimeout = setTimeout(() => {
         fetchDevices();
-    }, 300); // Debounce para evitar muitas requisições
+    }, 300);
 
     return () => clearTimeout(searchTimeout);
   }, [searchQuery, searchCategory]);
@@ -83,7 +83,9 @@ const DashboardPage = () => {
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
           <div className={`w-3 h-3 rounded-full ${device.status ? 'bg-green-500' : 'bg-red-500'}`}></div>
-          <p className="font-bold text-white">{device.login}</p>
+          <Link to={`/device/${device.serial_number}`} className="font-bold text-white hover:underline hover:text-brand-gold-light transition-colors">
+            {device.login}
+          </Link>
         </div>
         <p className="text-sm text-gray-400">{device.ipv4}</p>
       </div>
@@ -97,7 +99,6 @@ const DashboardPage = () => {
 
   return (
     <div className="w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-[rgba(18,23,74,0.6)] rounded-2xl border border-[rgba(255,255,255,0.04)] shadow-lg">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-white">Dispositivos</h1>
@@ -116,7 +117,6 @@ const DashboardPage = () => {
         </div>
       </div>
 
-      {/* Search Bar */}
       <div className="flex flex-col sm:flex-row items-center gap-2 mb-6">
         <Select value={searchCategory} onValueChange={setSearchCategory}>
           <SelectTrigger className="w-full sm:w-[180px] bg-gray-800/50 border-gray-700">
@@ -140,7 +140,6 @@ const DashboardPage = () => {
         </div>
       </div>
 
-      {/* Devices Table for Desktop */}
       <div className="hidden md:block border border-gray-800 rounded-lg overflow-hidden">
         <Table>
           <TableHeader>
@@ -168,7 +167,11 @@ const DashboardPage = () => {
                   <TableCell>
                     <div className={`w-3 h-3 rounded-full ${device.status ? 'bg-green-500' : 'bg-red-500'}`}></div>
                   </TableCell>
-                  <TableCell className="font-medium">{device.login}</TableCell>
+                  <TableCell className="font-medium">
+                    <Link to={`/device/${device.serial_number}`} className="hover:underline hover:text-brand-gold-light transition-colors">
+                      {device.login}
+                    </Link>
+                  </TableCell>
                   <TableCell>{device.ipv4}</TableCell>
                   <TableCell>{device.manufacturer}</TableCell>
                   <TableCell>{device.model}</TableCell>
@@ -184,7 +187,6 @@ const DashboardPage = () => {
         </Table>
       </div>
 
-      {/* Devices Cards for Mobile */}
       <div className="md:hidden space-y-4">
         {loading ? (
           <p className="text-center text-gray-400 py-8">Carregando dispositivos...</p>
@@ -197,7 +199,6 @@ const DashboardPage = () => {
         )}
       </div>
       
-      {/* Footer / Pagination */}
       <div className="flex justify-between items-center mt-4 text-sm text-gray-400">
         <p>1-{devices.length} de {devices.length} dispositivos</p>
         <div className="flex items-center gap-2">

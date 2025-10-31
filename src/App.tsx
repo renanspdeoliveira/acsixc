@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
+import DeviceDetailsPage from "./pages/DeviceDetailsPage";
 
 function App() {
   return (
@@ -13,11 +14,12 @@ function App() {
         <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-brand-gold/10 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute bottom-[-15%] left-[-15%] w-80 h-80 bg-blue-400/10 rounded-full blur-3xl pointer-events-none"></div>
 
-        <div className="relative z-10 flex flex-col items-center justify-center min-h-screen p-4">
+        <div className="relative z-10 flex flex-col items-center min-h-screen p-4">
           <main className="w-full flex-grow flex items-center justify-center">
             <Routes>
               <Route path="/" element={<LoginPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/device/:serial_number" element={<DeviceDetailsPage />} />
             </Routes>
           </main>
           <footer className="w-full text-center py-4">
