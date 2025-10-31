@@ -80,7 +80,7 @@ const DashboardPage = () => {
         }
       } catch (err: any) {
         console.error("Error fetching devices:", err);
-        setError(`Não foi possível carregar os dispositivos. Detalhes: ${err.message}`);
+        setError(`Não foi possível carregar os dispositivos. Detalhes: ${JSON.stringify(err, null, 2)}`);
       } finally {
         setLoading(false);
       }
@@ -176,7 +176,7 @@ const DashboardPage = () => {
               </TableRow>
             ) : error ? (
                <TableRow>
-                <TableCell colSpan={6} className="text-center text-red-400 py-8">{error}</TableCell>
+                <TableCell colSpan={6} className="text-center text-red-400 py-8 whitespace-pre-wrap">{error}</TableCell>
               </TableRow>
             ) : devices.length > 0 ? (
               devices.map((device) => (
@@ -208,7 +208,7 @@ const DashboardPage = () => {
         {loading ? (
           <p className="text-center text-gray-400 py-8">Carregando dispositivos...</p>
         ) : error ? (
-          <p className="text-center text-red-400 py-8">{error}</p>
+          <p className="text-center text-red-400 py-8 whitespace-pre-wrap">{error}</p>
         ) : devices.length > 0 ? (
           devices.map(renderDeviceCard)
         ) : (

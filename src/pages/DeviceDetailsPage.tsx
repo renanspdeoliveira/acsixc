@@ -74,7 +74,7 @@ const DeviceDetailsPage = () => {
       setTestResult(data);
     } catch (err: any) {
       console.error("Error running speed test:", err);
-      setTestError(err.message || "Ocorreu um erro ao iniciar o teste de velocidade.");
+      setTestError(JSON.stringify(err, null, 2) || "Ocorreu um erro ao iniciar o teste de velocidade.");
     } finally {
       setIsTesting(false);
     }
@@ -182,7 +182,7 @@ const DeviceDetailsPage = () => {
                 {testError && (
                     <div className="mt-3 p-3 bg-red-900/50 rounded-md text-xs text-red-300">
                         <p className="font-semibold">Erro:</p>
-                        <p>{testError}</p>
+                        <pre className="whitespace-pre-wrap break-all">{testError}</pre>
                     </div>
                 )}
               </li>
