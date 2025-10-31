@@ -31,6 +31,18 @@ type Device = {
   description: string | null;
 };
 
+// Mapeia a resposta da API para o formato que nosso app usa
+const mapApiDeviceToAppDevice = (apiDevice: any): Device => ({
+  id: apiDevice._id || apiDevice.id,
+  status: apiDevice.status,
+  login: apiDevice.login,
+  serial_number: apiDevice.serialNumber || apiDevice.serial_number,
+  ipv4: apiDevice.ipAddress || apiDevice.ipv4,
+  manufacturer: apiDevice.manufacturer,
+  model: apiDevice.modelName || apiDevice.model,
+  description: apiDevice.description,
+});
+
 const DashboardPage = () => {
   const [devices, setDevices] = useState<Device[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,12 +50,13 @@ const DashboardPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchCategory, setSearchCategory] = useState("login");
 
+  // Valores atualizados para corresponder aos campos da API
   const searchCategories = [
     { value: "login", label: "Login" },
-    { value: "serial_number", label: "Serial Number" },
-    { value: "ipv4", label: "IPv4" },
+    { value: "serialNumber", label: "Serial Number" },
+    { value: "ipAddress", label: "IPv4" },
     { value: "manufacturer", label: "Fabricante" },
-    { value: "model", label: "Modelo" },
+    { value: "modelName", label: "Modelo" },
     { value: "description", label: "Descrição" },
   ];
 
@@ -51,22 +64,26 @@ const DashboardPage = () => {
     const fetchDevices = async () => {
       setLoading(true);
       setError(null);
+      try {
+        const { data: apiResponse, error: functionError } = await supabase.functions.invoke('get-devices', {
+          body: { searchQuery, searchCategory },
+        });
 
-      let query = supabase.from("devices").select("*");
+        if (functionError) throw functionError;
+        if (apiResponse.error) throw new Error(apiResponse.error);
 
-      if (searchQuery) {
-        query = query.ilike(searchCategory, `%${searchQuery}%`);
-      }
-
-      const { data, error } = await query.order("created_at", { ascending: false });
-
-      if (error) {
-        console.error("Error fetching devices:", error);
+        if (apiResponse.data && Array.isArray(apiResponse.data)) {
+          const mappedData = apiResponse.data.map(mapApiDeviceToAppDevice);
+          setDevices(mappedData);
+        } else {
+          setDevices([]);
+        }
+      } catch (err: any) {
+        console.error("Error fetching devices:", err);
         setError("Não foi possível carregar os dispositivos.");
-      } else {
-        setDevices(data as Device[]);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     const searchTimeout = setTimeout(() => {
