@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Clock, Timer, Hash, Code, Laptop, Network, MapPin, Route, RadioTower, Gauge, PlayCircle, ChevronRight, RefreshCw, MoreVertical, Bell, UserCircle } from 'lucide-react';
+import { ArrowLeft, Clock, Timer, Hash, Code, Laptop, Network, MapPin, Route, RadioTower, Gauge, PlayCircle, ChevronRight, RefreshCw, MoreVertical, Bell, UserCircle, Loader2 } from 'lucide-react';
 
 type Device = {
   id: string;
@@ -29,6 +29,10 @@ const DeviceDetailsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [isTesting, setIsTesting] = useState(false);
+  const [testResult, setTestResult] = useState<any | null>(null);
+  const [testError, setTestError] = useState<string | null>(null);
+
   useEffect(() => {
     const fetchDeviceDetails = async () => {
       if (!serial_number) return;
@@ -52,6 +56,29 @@ const DeviceDetailsPage = () => {
 
     fetchDeviceDetails();
   }, [serial_number]);
+
+  const runSpeedTest = async () => {
+    if (!serial_number) return;
+    setIsTesting(true);
+    setTestResult(null);
+    setTestError(null);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('speed-test', {
+        body: { serial_number },
+      });
+
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
+
+      setTestResult(data);
+    } catch (err: any) {
+      console.error("Error running speed test:", err);
+      setTestError(err.message || "Ocorreu um erro ao iniciar o teste de velocidade.");
+    } finally {
+      setIsTesting(false);
+    }
+  };
 
   if (loading) {
     return <div className="text-center text-gray-400">Carregando detalhes do dispositivo...</div>;
@@ -139,7 +166,26 @@ const DeviceDetailsPage = () => {
               <li className="flex justify-between items-center"><div className="flex items-center gap-3"><MapPin size={20} /><span>Teste de ping</span></div><Button variant="ghost" size="icon"><PlayCircle /></Button></li>
               <li className="flex justify-between items-center"><div className="flex items-center gap-3"><Route size={20} /><span>Traceroute</span></div><Button variant="ghost" size="icon"><PlayCircle /></Button></li>
               <li className="flex justify-between items-center"><div className="flex items-center gap-3"><RadioTower size={20} /><span>Redes próximas</span></div><Button variant="ghost" size="icon"><ChevronRight /></Button></li>
-              <li className="flex justify-between items-center"><div className="flex items-center gap-3"><Gauge size={20} /><span>Teste de velocidade</span></div><Button variant="ghost" size="icon"><ChevronRight /></Button></li>
+              <li className="border-t border-gray-700 pt-3">
+                <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-3"><Gauge size={20} /><span>Teste de velocidade</span></div>
+                    <Button variant="ghost" size="icon" onClick={runSpeedTest} disabled={isTesting}>
+                        {isTesting ? <Loader2 className="animate-spin" /> : <PlayCircle />}
+                    </Button>
+                </div>
+                {testResult && (
+                    <div className="mt-3 p-3 bg-gray-900/50 rounded-md text-xs">
+                        <p className="font-semibold text-green-400">Teste iniciado com sucesso!</p>
+                        <pre className="mt-1 text-gray-300 whitespace-pre-wrap break-all">{JSON.stringify(testResult, null, 2)}</pre>
+                    </div>
+                )}
+                {testError && (
+                    <div className="mt-3 p-3 bg-red-900/50 rounded-md text-xs text-red-300">
+                        <p className="font-semibold">Erro:</p>
+                        <p>{testError}</p>
+                    </div>
+                )}
+              </li>
             </ul>
           </InfoCard>
         </div>
