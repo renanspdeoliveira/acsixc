@@ -2,8 +2,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useState } from "react";
 
 const LoginPage = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Login attempt with:", { email, password });
+    // Aqui é onde a lógica de autenticação real seria adicionada.
+  };
+
   return (
     <div className="mx-auto w-full max-w-md rounded-2xl bg-[rgba(18,23,74,0.6)] backdrop-blur-md border border-[rgba(255,255,255,0.04)] shadow-lg p-8">
       {/* Card Header */}
@@ -24,7 +34,7 @@ const LoginPage = () => {
       </div>
 
       {/* Form */}
-      <form className="space-y-6">
+      <form className="space-y-6" onSubmit={handleSubmit}>
         <div className="space-y-2">
           <Label htmlFor="email" className="text-gray-300">E-mail</Label>
           <Input
@@ -32,6 +42,8 @@ const LoginPage = () => {
             type="email"
             placeholder="seu@email.com"
             className="bg-[rgba(255,255,255,0.04)] border-transparent focus:border-brand-gold focus:ring-brand-gold focus:shadow-gold-glow transition-all"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
         </div>
 
@@ -42,6 +54,8 @@ const LoginPage = () => {
             type="password"
             placeholder="••••••••"
             className="bg-[rgba(255,255,255,0.04)] border-transparent focus:border-brand-gold focus:ring-brand-gold focus:shadow-gold-glow transition-all"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
         </div>
 
