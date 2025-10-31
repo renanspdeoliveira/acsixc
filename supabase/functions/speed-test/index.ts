@@ -5,7 +5,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// --- Lógica de autenticação OAuth reutilizada ---
 const ACS_CLIENT_ID = Deno.env.get("ACS_CLIENT_ID");
 const ACS_CLIENT_SECRET = Deno.env.get("ACS_CLIENT_SECRET");
 const TOKEN_URL = "https://128.201.140.41:443/api/v1/token/oauth";
@@ -29,7 +28,7 @@ async function getAccessToken() {
   if (!response.ok) {
     const errorBody = await response.text();
     console.error("Erro ao obter token:", response.status, errorBody);
-    throw new Error(`Falha ao obter token de acesso: ${response.statusText}`);
+    throw new Error(`Falha ao obter token de acesso: ${response.statusText}. Detalhes: ${errorBody}`);
   }
 
   const data = await response.json();
@@ -42,13 +41,11 @@ serve(async (req) => {
   }
 
   try {
-    // 1. Obter o token de acesso
     const accessToken = await getAccessToken();
     if (!accessToken) {
       throw new Error("Não foi possível obter o access_token da API.");
     }
 
-    // 2. Continuar com a lógica do speed test
     const { serial_number } = await req.json();
     if (!serial_number) {
       return new Response(JSON.stringify({ error: 'O número de série é obrigatório' }), {
@@ -62,7 +59,7 @@ serve(async (req) => {
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${accessToken}`, // Usando o novo token
+        "Authorization": `Bearer ${accessToken}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
@@ -76,8 +73,8 @@ serve(async (req) => {
 
     if (!response.ok) {
         const errorBody = await response.text();
-        console.error(`Erro na API externa: ${response.status}`, errorBody);
-        throw new Error(`Falha ao iniciar o teste: ${response.statusText}`);
+        console.error(`Erro na API externa (speed-test): ${response.status}`, errorBody);
+        throw new Error(`Falha ao iniciar o teste: ${response.statusText}. Detalhes: ${errorBody}`);
     }
 
     const result = await response.json();
@@ -88,7 +85,7 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("Erro detalhado na Edge Function 'speed-test':", error);
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,

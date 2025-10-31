@@ -80,7 +80,7 @@ const DashboardPage = () => {
         }
       } catch (err: any) {
         console.error("Error fetching devices:", err);
-        setError("Não foi possível carregar os dispositivos.");
+        setError(`Não foi possível carregar os dispositivos. Detalhes: ${err.message}`);
       } finally {
         setLoading(false);
       }
