@@ -78,6 +78,23 @@ const DashboardPage = () => {
 
   const selectedCategoryLabel = searchCategories.find(c => c.value === searchCategory)?.label || "Login";
 
+  const renderDeviceCard = (device: Device) => (
+    <div key={device.id} className="bg-gray-800/50 p-4 rounded-lg border border-gray-800 space-y-3">
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <div className={`w-3 h-3 rounded-full ${device.status ? 'bg-green-500' : 'bg-red-500'}`}></div>
+          <p className="font-bold text-white">{device.login}</p>
+        </div>
+        <p className="text-sm text-gray-400">{device.ipv4}</p>
+      </div>
+      <div className="text-sm space-y-1">
+        <p><span className="font-semibold text-gray-300">Fabricante:</span> <span className="text-gray-400">{device.manufacturer}</span></p>
+        <p><span className="font-semibold text-gray-300">Modelo:</span> <span className="text-gray-400">{device.model}</span></p>
+        <p><span className="font-semibold text-gray-300">Descrição:</span> <span className="text-gray-400">{device.description}</span></p>
+      </div>
+    </div>
+  );
+
   return (
     <div className="w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-[rgba(18,23,74,0.6)] rounded-2xl border border-[rgba(255,255,255,0.04)] shadow-lg">
       {/* Header */}
@@ -90,19 +107,19 @@ const DashboardPage = () => {
         </div>
         <div className="flex items-center gap-2 mt-4 sm:mt-0">
           <Button variant="ghost" size="icon"><Star className="h-4 w-4" /></Button>
-          <Button variant="ghost"><Filter className="h-4 w-4 mr-2" />Filtros</Button>
-          <Button variant="ghost"><Eye className="h-4 w-4 mr-2" />Visões</Button>
+          <Button variant="ghost"><Filter className="h-4 w-4 sm:mr-2" /><span className="hidden sm:inline">Filtros</span></Button>
+          <Button variant="ghost"><Eye className="h-4 w-4 sm:mr-2" /><span className="hidden sm:inline">Visões</span></Button>
           <Button variant="outline" className="bg-transparent border-blue-400 text-blue-400 hover:bg-blue-400/10 hover:text-blue-300">
-            <Settings className="h-4 w-4 mr-2" />
-            Configurações
+            <Settings className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Configurações</span>
           </Button>
         </div>
       </div>
 
       {/* Search Bar */}
-      <div className="flex items-center gap-2 mb-6">
+      <div className="flex flex-col sm:flex-row items-center gap-2 mb-6">
         <Select value={searchCategory} onValueChange={setSearchCategory}>
-          <SelectTrigger className="w-[180px] bg-gray-800/50 border-gray-700">
+          <SelectTrigger className="w-full sm:w-[180px] bg-gray-800/50 border-gray-700">
             <SelectValue placeholder="Filtrar por..." />
           </SelectTrigger>
           <SelectContent className="bg-gray-900 border-gray-700 text-white">
@@ -111,7 +128,7 @@ const DashboardPage = () => {
             ))}
           </SelectContent>
         </Select>
-        <div className="relative flex-grow">
+        <div className="relative w-full flex-grow">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
             type="text"
@@ -123,8 +140,8 @@ const DashboardPage = () => {
         </div>
       </div>
 
-      {/* Devices Table */}
-      <div className="border border-gray-800 rounded-lg overflow-hidden">
+      {/* Devices Table for Desktop */}
+      <div className="hidden md:block border border-gray-800 rounded-lg overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-gray-800/50 border-b border-gray-800">
@@ -165,6 +182,19 @@ const DashboardPage = () => {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Devices Cards for Mobile */}
+      <div className="md:hidden space-y-4">
+        {loading ? (
+          <p className="text-center text-gray-400 py-8">Carregando dispositivos...</p>
+        ) : error ? (
+          <p className="text-center text-red-400 py-8">{error}</p>
+        ) : devices.length > 0 ? (
+          devices.map(renderDeviceCard)
+        ) : (
+          <p className="text-center text-gray-400 py-8">Nenhum dispositivo encontrado.</p>
+        )}
       </div>
       
       {/* Footer / Pagination */}
