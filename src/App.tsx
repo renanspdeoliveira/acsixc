@@ -5,12 +5,13 @@ import DashboardPage from "./pages/DashboardPage";
 function App() {
   return (
     <Router>
-      <div className="relative min-h-screen w-full bg-brand-blue text-white overflow-hidden">
+      <div className="relative min-h-screen w-full bg-gradient-to-br from-[#0a0e2c] to-[#12174A] text-white overflow-hidden">
         {/* Radial gradient overlay */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-700/20 via-transparent to-transparent"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-500/10 via-transparent to-transparent"></div>
         
-        {/* Decorative blurred circle */}
+        {/* Decorative blurred circles */}
         <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-brand-gold/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute bottom-[-15%] left-[-15%] w-80 h-80 bg-blue-400/10 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="relative z-10 flex flex-col items-center justify-center min-h-screen p-4">
           <main className="w-full flex-grow flex items-center justify-center">
