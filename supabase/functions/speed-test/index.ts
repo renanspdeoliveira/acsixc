@@ -1,27 +1,54 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts"
 
-// Headers para permitir que o nosso app chame esta função
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Pega o token da API de forma segura dos segredos do Supabase
-const IXC_TOKEN = Deno.env.get("IXC_TOKEN");
+// --- Lógica de autenticação OAuth reutilizada ---
+const ACS_CLIENT_ID = Deno.env.get("ACS_CLIENT_ID");
+const ACS_CLIENT_SECRET = Deno.env.get("ACS_CLIENT_SECRET");
+const TOKEN_URL = "https://128.201.140.41:443/api/v1/token/oauth";
+
+async function getAccessToken() {
+  if (!ACS_CLIENT_ID || !ACS_CLIENT_SECRET) {
+    throw new Error("ACS_CLIENT_ID e ACS_CLIENT_SECRET precisam ser configurados nos segredos do Supabase.");
+  }
+
+  const response = await fetch(TOKEN_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({
+      'client_id': ACS_CLIENT_ID,
+      'client_secret': ACS_CLIENT_SECRET,
+    })
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    console.error("Erro ao obter token:", response.status, errorBody);
+    throw new Error(`Falha ao obter token de acesso: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return data.access_token;
+}
 
 serve(async (req) => {
-  // Responde a uma requisição de "verificação" do navegador
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
-    // Verifica se o token da API está configurado
-    if (!IXC_TOKEN) {
-      throw new Error("O token da API (IXC_TOKEN) não está configurado nos segredos do Supabase.");
+    // 1. Obter o token de acesso
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+      throw new Error("Não foi possível obter o access_token da API.");
     }
 
-    // Pega o número de série enviado pelo frontend
+    // 2. Continuar com a lógica do speed test
     const { serial_number } = await req.json();
     if (!serial_number) {
       return new Response(JSON.stringify({ error: 'O número de série é obrigatório' }), {
@@ -32,11 +59,10 @@ serve(async (req) => {
 
     const apiUrl = `https://128.201.140.41:443/api/v2/devices/${serial_number}/diagnostics/speedTest/start`;
 
-    // Faz a chamada para a API externa
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${IXC_TOKEN}`,
+        "Authorization": `Bearer ${accessToken}`, // Usando o novo token
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
@@ -56,7 +82,6 @@ serve(async (req) => {
 
     const result = await response.json();
 
-    // Retorna o resultado para o frontend
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
