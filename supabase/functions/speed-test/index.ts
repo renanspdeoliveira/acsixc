@@ -7,7 +7,8 @@ const corsHeaders = {
 
 const ACS_CLIENT_ID = Deno.env.get("ACS_CLIENT_ID");
 const ACS_CLIENT_SECRET = Deno.env.get("ACS_CLIENT_SECRET");
-const TOKEN_URL = "https://128.201.140.41:443/api/v1/token/oauth";
+// ATENÇÃO: Mudando para HTTP como tentativa de diagnóstico. Não é uma solução segura para produção.
+const TOKEN_URL = "http://128.201.140.41/api/v1/token/oauth";
 
 async function getAccessToken() {
   if (!ACS_CLIENT_ID || !ACS_CLIENT_SECRET) {
@@ -54,7 +55,7 @@ serve(async (req) => {
       });
     }
 
-    const apiUrl = `https://128.201.140.41:443/api/v2/devices/${serial_number}/diagnostics/speedTest/start`;
+    const apiUrl = `http://128.201.140.41/api/v2/devices/${serial_number}/diagnostics/speedTest/start`;
 
     const response = await fetch(apiUrl, {
       method: "POST",
