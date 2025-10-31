@@ -85,7 +85,11 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error("Erro detalhado na Edge Function 'speed-test':", error);
+    console.error("Erro detalhado na Edge Function 'speed-test':", {
+        message: error.message,
+        stack: error.stack,
+        cause: error.cause,
+    });
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,

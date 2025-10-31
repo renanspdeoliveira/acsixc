@@ -92,7 +92,11 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error("Erro detalhado na Edge Function 'get-devices':", error);
+    console.error("Erro detalhado na Edge Function 'get-devices':", {
+        message: error.message,
+        stack: error.stack,
+        cause: error.cause,
+    });
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,
